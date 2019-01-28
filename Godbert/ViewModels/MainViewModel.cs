@@ -40,7 +40,7 @@ namespace Godbert.ViewModels {
         public MainViewModel() {
             if (!App.IsValidGamePath(Properties.Settings.Default.GamePath))
                 return;
-            var realm = new ARealmReversed(Properties.Settings.Default.GamePath, SaintCoinach.Ex.Language.English);
+            var realm = new ARealmReversed(Properties.Settings.Default.GamePath, SaintCoinach.Ex.Language.ChineseSimplified);
             Initialize(realm);
         }
 

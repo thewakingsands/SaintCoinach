@@ -12,7 +12,7 @@ namespace Godbert {
         public static Settings Default { get; } = Load();
 
         private static string FileName => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Godbert", "settings.json");
+            AppDomain.CurrentDomain.BaseDirectory, "AppData", "settings.json");
 
         private static Settings Load() {
             try {

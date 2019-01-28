@@ -52,4 +52,4 @@ deploy:
   description: ""
   artifact: Godbert,SaintCoinach.Cmd
   auth_token:
-    secure: P5xOt894Gg8zZBmUblkV3QFS1nXmJtW1D9VcZl4E2vEMTknLi+FinTrsJfH/N1gE
+    secure: Rn5WsXn0sWKi0PQUyno7ztLQq8cpuO7vzJsSx2dNWhDnQ63fCZivC1tTTn91BwIq

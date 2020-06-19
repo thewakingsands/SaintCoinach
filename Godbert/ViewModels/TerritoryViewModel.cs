@@ -94,7 +94,6 @@ namespace Godbert.ViewModels {
 
         private void OnExport() {
             
-            string teriName = "";
             if (SelectedTerritory == null)
                 return;
             try {
@@ -160,20 +159,32 @@ namespace Godbert.ViewModels {
                             continue;
                         }
 
-                        SaintCoinach.Imaging.ImageConverter.Convert(img).Save($"{_ExportDirectory}/{mtlName}.png");
+                        //SaintCoinach.Imaging.ImageConverter.Convert(img).Save($"{_ExportDirectory}/{mtlName}.png");
+
                         if (mtlName.Contains("_dummy_"))
                             continue;
+
+                        var ddsBytes = SaintCoinach.Imaging.ImageConverter.GetDDS(img);
+
+                        var fileExt = ddsBytes != null ? ".dds" : ".png";
+                        
+                        if (fileExt == ".dds")
+                            System.IO.File.WriteAllBytes($"{_ExportDirectory}/{mtlName}.dds", ddsBytes);
+                        else
+                            SaintCoinach.Imaging.ImageConverter.Convert(img).Save($"{_ExportDirectory}/{mtlName}.png");
+
+
                         if (mtlName.Contains("_n.tex")) {
-                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"bump {mtlName}.png\n");
+                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"bump {mtlName}{fileExt}\n");
                         }
                         else if (mtlName.Contains("_s.tex")) {
-                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"map_Ks {mtlName}.png\n");
+                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"map_Ks {mtlName}{fileExt}\n");
                         }
                         else if (!mtlName.Contains("_a.tex")) {
-                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"map_Kd {mtlName}.png\n");
+                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"map_Kd {mtlName}{fileExt}\n");
                         }
                         else {
-                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"map_Ka {mtlName}.png\n");
+                            System.IO.File.AppendAllText($"./{_ExportDirectory}/{path}.mtl", $"map_Ka {mtlName}{fileExt}\n");
                         }
 
                         exportedPaths.Add(path + mtlName, true);
@@ -209,14 +220,19 @@ namespace Godbert.ViewModels {
                         y = t.TranslationVector.Y;
                         z = t.TranslationVector.Z;
 
-                        vertStr.Add($"v {x} {y} {z} {v.Position.Value.W}");
+                        // .Replace(',','.') cause decimal separator locale memes
+                        if (v.Color != null)
+                            vertStr.Add($"v {x} {y} {z} {v.Color.Value.X} {v.Color.Value.Y} {v.Color.Value.Z} {v.Color.Value.W}".Replace(',','.'));
+                        else
+                            vertStr.Add($"v {x} {y} {z}".Replace(',','.'));
+
                         tempVs++;
 
-                        vertStr.Add($"vn {v.Normal.Value.X} {v.Normal.Value.Y} {v.Normal.Value.Z}");
+                        vertStr.Add($"vn {v.Normal.Value.X} {v.Normal.Value.Y} {v.Normal.Value.Z}".Replace(',', '.'));
                         tempVn++;
 
                         if (v.UV != null) {
-                            vertStr.Add($"vt {v.UV.Value.X} {v.UV.Value.Y} {v.UV.Value.Z} {v.UV.Value.W}");
+                            vertStr.Add($"vt {v.UV.Value.X} {v.UV.Value.Y * -1.0}".Replace(',', '.'));
                             tempVt++;
                         }
                     }
@@ -242,6 +258,19 @@ namespace Godbert.ViewModels {
                 void ExportSgbModels(SaintCoinach.Graphics.Sgb.SgbFile sgbFile, ref Matrix lgbTransform, ref Matrix rootGimTransform, ref Matrix currGimTransform) {
                     foreach (var sgbGroup in sgbFile.Data.OfType<SaintCoinach.Graphics.Sgb.SgbGroup>()) {
                         bool newGroup = true;
+
+                        foreach (var sgb1CEntry in sgbGroup.Entries.OfType<SaintCoinach.Graphics.Sgb.SgbGroup1CEntry>()) {
+                            if (sgb1CEntry.Gimmick != null) {
+                                ExportSgbModels(sgb1CEntry.Gimmick, ref lgbTransform, ref IdentityMatrix, ref IdentityMatrix);
+                                foreach (var subGimGroup in sgb1CEntry.Gimmick.Data.OfType<SaintCoinach.Graphics.Sgb.SgbGroup>()) {
+                                    foreach (var subGimEntry in subGimGroup.Entries.OfType<SaintCoinach.Graphics.Sgb.SgbGimmickEntry>()) {
+                                        var subGimTransform = CreateMatrix(subGimEntry.Header.Translation, subGimEntry.Header.Rotation, subGimEntry.Header.Scale);
+                                        ExportSgbModels(subGimEntry.Gimmick, ref lgbTransform, ref IdentityMatrix, ref subGimTransform);
+                                    }
+                                }
+                            }
+                        }
+
                         foreach (var mdl in sgbGroup.Entries.OfType<SaintCoinach.Graphics.Sgb.SgbModelEntry>()) {
                             Model hq = null;
                             var filePath = mdl.ModelFilePath;
@@ -252,11 +281,11 @@ namespace Godbert.ViewModels {
                                 hq = mdl.Model.Model.GetModel(ModelQuality.High);
                             }
                             catch (Exception e) {
-                                System.Diagnostics.Debug.WriteLine($"Unable to load model for {mdl.Name} path: {filePath}");
+                                System.Diagnostics.Debug.WriteLine($"Unable to load model for {mdl.Name} path: {filePath}.  Exception: {e.Message}");
                                 continue;
                             }
                             if (newGroup) {
-                                vertStr.Add($"o {sgbFile.File.Path}_{sgbGroup.Name}_{i}");
+                                //vertStr.Add($"o {sgbFile.File.Path}_{sgbGroup.Name}_{i}");
                                 newGroup = false;
                             }
                             for (var j = 0; j < hq.Meshes.Length; ++j) {
@@ -407,17 +436,6 @@ namespace Godbert.ViewModels {
                                                     foreach (var subGimEntry in subGimGroup.Entries.OfType<SaintCoinach.Graphics.Sgb.SgbGimmickEntry>()) {
                                                         var subGimTransform = CreateMatrix(subGimEntry.Header.Translation, subGimEntry.Header.Rotation, subGimEntry.Header.Scale);
                                                         ExportSgbModels(subGimEntry.Gimmick, ref lgbTransform, ref rootGimTransform, ref subGimTransform);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        foreach (var sgb1CEntry in rootGimGroup.Entries.OfType<SaintCoinach.Graphics.Sgb.SgbGroup1CEntry>()) {
-                                            if (sgb1CEntry.Gimmick != null) {
-                                                ExportSgbModels(sgb1CEntry.Gimmick, ref lgbTransform, ref IdentityMatrix, ref IdentityMatrix);
-                                                foreach (var subGimGroup in sgb1CEntry.Gimmick.Data.OfType<SaintCoinach.Graphics.Sgb.SgbGroup>()) {
-                                                    foreach (var subGimEntry in subGimGroup.Entries.OfType<SaintCoinach.Graphics.Sgb.SgbGimmickEntry>()) {
-                                                        var subGimTransform = CreateMatrix(subGimEntry.Header.Translation, subGimEntry.Header.Rotation, subGimEntry.Header.Scale);
-                                                        ExportSgbModels(subGimEntry.Gimmick, ref lgbTransform, ref IdentityMatrix, ref subGimTransform);
                                                     }
                                                 }
                                             }

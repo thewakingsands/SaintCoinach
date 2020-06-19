@@ -28,7 +28,10 @@ namespace Godbert.ViewModels {
         public bool IsJapanese { get { return Realm.GameData.ActiveLanguage == SaintCoinach.Ex.Language.Japanese; } }
         public bool IsFrench { get { return Realm.GameData.ActiveLanguage == SaintCoinach.Ex.Language.French; } }
         public bool IsGerman { get { return Realm.GameData.ActiveLanguage == SaintCoinach.Ex.Language.German; } }
+        public bool IsChineseSimplified { get { return Realm.GameData.ActiveLanguage == SaintCoinach.Ex.Language.ChineseSimplified; } }
+        public bool IsKorean { get { return Realm.GameData.ActiveLanguage == SaintCoinach.Ex.Language.Korean; } }
 
+        public bool SortByOffsets { get { return Settings.Default.SortByOffsets;} }
         public bool ShowOffsets { get { return Settings.Default.ShowOffsets; } }
         #endregion
 
@@ -40,8 +43,26 @@ namespace Godbert.ViewModels {
         public MainViewModel() {
             if (!App.IsValidGamePath(Properties.Settings.Default.GamePath))
                 return;
-            var realm = new ARealmReversed(Properties.Settings.Default.GamePath, SaintCoinach.Ex.Language.English);
-            Initialize(realm);
+
+            var languages = new[] { SaintCoinach.Ex.Language.English, SaintCoinach.Ex.Language.ChineseSimplified, SaintCoinach.Ex.Language.Korean };
+            NotSupportedException lastException = null;
+
+            foreach (var language in languages) {
+                try {
+                    var realm = new ARealmReversed(Properties.Settings.Default.GamePath, language);
+                    Initialize(realm);
+                    lastException = null;
+                    break;
+                }
+                catch (NotSupportedException e) {
+                    lastException = e;
+                    continue;
+                }
+            }
+
+            if (lastException != null) {
+                throw new AggregateException(new[] { lastException });
+            }
         }
 
         public MainViewModel(ARealmReversed realm) {
@@ -67,11 +88,13 @@ namespace Godbert.ViewModels {
         private ICommand _GameLocationCommand;
         private ICommand _NewWindowCommand;
         private ICommand _ShowOffsetsCommand;
+        private ICommand _SortByOffsetsCommand;
 
         public ICommand LanguageCommand { get { return _LanguageCommand ?? (_LanguageCommand = new Commands.DelegateCommand<SaintCoinach.Ex.Language>(OnLanguage)); } }
         public ICommand GameLocationCommand { get { return _GameLocationCommand ?? (_GameLocationCommand = new Commands.DelegateCommand(OnGameLocation)); } }
         public ICommand NewWindowCommand { get { return _NewWindowCommand ?? (_NewWindowCommand = new Commands.DelegateCommand(OnNewWindowCommand)); } }
         public ICommand ShowOffsetsCommand { get { return _ShowOffsetsCommand ?? (_ShowOffsetsCommand = new Commands.DelegateCommand(OnShowOffsetsCommand)); } }
+        public ICommand SortByOffsetsCommand { get { return _SortByOffsetsCommand ?? (_SortByOffsetsCommand= new Commands.DelegateCommand(OnSortByOffsetsCommand)); } }
 
         private void OnLanguage(SaintCoinach.Ex.Language newLanguage) {
             Realm.GameData.ActiveLanguage = newLanguage;
@@ -80,6 +103,8 @@ namespace Godbert.ViewModels {
             OnPropertyChanged(() => IsJapanese);
             OnPropertyChanged(() => IsGerman);
             OnPropertyChanged(() => IsFrench);
+            OnPropertyChanged(() => IsChineseSimplified);
+            OnPropertyChanged(() => IsKorean);
 
             Equipment.Refresh();
             Territories.Refresh();
@@ -115,6 +140,14 @@ namespace Godbert.ViewModels {
             Settings.Default.ShowOffsets = !Settings.Default.ShowOffsets;
 
             OnPropertyChanged(() => ShowOffsets);
+
+            DataGridChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnSortByOffsetsCommand() {
+            Settings.Default.SortByOffsets = !Settings.Default.SortByOffsets;
+
+            OnPropertyChanged(() => SortByOffsets);
 
             DataGridChanged?.Invoke(this, EventArgs.Empty);
         }

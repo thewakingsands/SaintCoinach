@@ -76,12 +76,6 @@ namespace SaintCoinach.Xiv.Items {
         public int BaseParamModifier { get { return AsInt32("BaseParamModifier"); } }
 
         /// <summary>
-        ///     Gets the <see cref="EquipSlotCategory" /> of the current item.
-        /// </summary>
-        /// <value>The <see cref="EquipSlotCategory" /> of the current item.</value>
-        public EquipSlotCategory EquipSlotCategory { get { return As<EquipSlotCategory>(); } }
-
-        /// <summary>
         ///     Gets the number of materia than can be fitted into the current item without overmelding.
         /// </summary>
         /// <value>The number of materia than can be fitted into the current item without overmelding.</value>
@@ -276,6 +270,8 @@ namespace SaintCoinach.Xiv.Items {
                 case 13: return 1001; // Roegadyn female
                 case 14: return 1301; // Au Ra male
                 case 15: return 1401; // Au Ra female
+                case 16: return 1501; // Hrothgar male
+                case 17: return 1801; // Viera female
                 default:
                     throw new NotImplementedException();
             }

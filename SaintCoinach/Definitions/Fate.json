@@ -1,0 +1,193 @@
+{
+  "sheet": "Fate",
+  "defaultColumn": "Name",
+  "definitions": [
+    {
+      "name": "EurekaFate"
+    },
+    {
+      "index": 1,
+      "name": "Rule"
+    },
+    {
+      "index": 2,
+      "name": "FateRuleEx",
+      "converter": {
+        "type": "link",
+        "target": "FateRuleEx"
+      }
+    },
+    {
+      "index": 3,
+      "name": "Location"
+    },
+    {
+      "index": 4,
+      "name": "ClassJobLevel"
+    },
+    {
+      "index": 5,
+      "name": "ClassJobLevel{Max}"
+    },
+    {
+      "index": 6,
+      "name": "EventItem",
+      "converter": {
+        "type": "link",
+        "target": "EventItem"
+      }
+    },
+    {
+      "index": 7,
+      "type": "repeat",
+      "count": 3,
+      "definition": {
+        "name": "TypeToDoValue"
+      }
+    },
+    {
+      "index": 10,
+      "name": "Icon{Objective}",
+      "converter": {
+        "type": "icon"
+      }
+    },
+    {
+      "index": 11,
+      "name": "Icon{Map}",
+      "converter": {
+        "type": "icon"
+      }
+    },
+    {
+      "index": 12,
+      "name": "IconInactive{Map}",
+      "converter": {
+        "type": "icon"
+      }
+    },
+    {
+      "index": 13,
+      "name": "Music",
+      "converter": {
+        "type": "link",
+        "target": "BGM"
+      }
+    },
+    {
+      "index": 14,
+      "name": "LGBGuardNPCLocation"
+    },
+    {
+      "index": 15,
+      "name": "ScreenImage{Accept}",
+      "converter": {
+        "type": "link",
+        "target": "ScreenImage"
+      }
+    },
+    {
+      "index": 16,
+      "name": "ScreenImage{Complete}",
+      "converter": {
+        "type": "link",
+        "target": "ScreenImage"
+      }
+    },
+    {
+      "index": 17,
+      "name": "ScreenImage{Failed}",
+      "converter": {
+        "type": "link",
+        "target": "ScreenImage"
+      }
+    },
+    {
+      "index": 18,
+      "name": "HasWorldMapIcon"
+    },
+    {
+      "index": 19,
+      "name": "IsQuest"
+    },
+    {
+      "index": 20,
+      "name": "SpecialFate"
+    },
+    {
+      "index": 21,
+      "name": "GivenStatus",
+      "converter": {
+        "type": "link",
+        "target": "Status"
+      }
+    },
+    {
+      "index": 23,
+      "name": "AdventEvent"
+    },
+    {
+      "index": 24,
+      "name": "MoonFaireEvent"
+    },
+    {
+      "index": 26,
+      "name": "FATEChain"
+    },
+    {
+      "index": 29,
+      "name": "Name"
+    },
+    {
+      "index": 30,
+      "name": "Description"
+    },
+    {
+      "index": 31,
+      "name": "Objective"
+    },
+    {
+      "index": 32,
+      "type": "repeat",
+      "count": 3,
+      "definition": {
+        "name": "StatusText"
+      }
+    },
+    {
+      "index": 35,
+      "name": "ArrayIndex",
+      "converter": {
+        "type": "link",
+        "target": "ArrayEventHandler"
+      }
+    },
+    {
+      "index": 37,
+      "name": "ReqEventItem",
+      "converter": {
+        "type": "link",
+        "target": "EventItem"
+      }
+    },
+    {
+      "index": 38,
+      "name": "TurnInEventItem",
+      "converter": {
+        "type": "link",
+        "target": "EventItem"
+      }
+    },
+    {
+      "index": 39,
+      "type": "repeat",
+      "count": 8,
+      "definition": {
+        "name": "ObjectiveIcon",
+        "converter": {
+          "type": "icon"
+        }
+      }
+    }
+  ]
+}

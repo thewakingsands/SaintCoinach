@@ -37,20 +37,31 @@ namespace Godbert.Controls {
             ((RawDataGrid)o).OnSheetChanged((IRelationalSheet)e.OldValue, (IRelationalSheet)e.NewValue);
         }
 
+        public static bool[] ColumnSetToRaw;
+
         protected virtual void OnSheetChanged(IRelationalSheet oldValue, IRelationalSheet newValue) {
             this.Columns.Clear();
 
             if (newValue != null)
             {
                 var keyPath = newValue.Header.Variant == 1 ? "Key" : "FullKey";
+
+                //prevent multiple enumeration
+                var columns = newValue.Header.Columns.ToList();
+
+                if (Settings.Default.SortByOffsets)
+                    columns.Sort((x, y) => x.Offset.CompareTo(y.Offset));
+
+                ColumnSetToRaw = new bool[columns.Count];
+
                 Columns.Add(new RawDataGridKeyColumn(keyPath) { CanUserSort = true });
 
-                foreach (var col in newValue.Header.Columns)
+                foreach (var col in columns)
                     Columns.Add(ColumnFactory.Create(col));
 
                 var source = new RawDataItemsSource(newValue);
-                if (Filter != null)
-                    source.Filter = o => FilterMatch(o, Filter);
+                if (!string.IsNullOrWhiteSpace(Filter))
+                    source.Filter = Filter;
                 this.ItemsSource = source;
             }
             else
@@ -69,28 +80,9 @@ namespace Godbert.Controls {
             if (string.IsNullOrWhiteSpace(newValue))
                 src.Filter = null;
             else
-                src.Filter = o => FilterMatch(o, newValue);
+                src.Filter = newValue;
         }
 
-        private static bool FilterMatch(object rowObj, string value) {
-            var row = rowObj as IRow;
-            if (row == null)
-                return false;
-
-            if (row.Key.ToString().IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0)
-                return true;
-
-            foreach (var col in row.Sheet.Header.Columns) {
-                var cellObj = row[col.Index];
-                if (cellObj == null)
-                    continue;
-
-                if (cellObj.ToString().IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0)
-                    return true;
-            }
-
-            return false;
-        }
         #endregion
 
         protected override void OnSorting(DataGridSortingEventArgs eventArgs) {
@@ -128,7 +120,28 @@ namespace Godbert.Controls {
                 }
             }
 
-            if (e.MiddleButton == MouseButtonState.Pressed) {
+            if (e.MiddleButton == MouseButtonState.Pressed) 
+            {
+
+                var cellHeader = GetClickedHeader(e);
+                if (cellHeader != null)
+                {
+
+                    if (cellHeader.Column is RawDataGridImageColumn ||
+                        cellHeader.Column is RawDataGridTextColumn ||
+                        cellHeader.Column is RawDataGridColorColumn)
+                    {
+
+                        var columnIndex = ((IRawDataColumn) cellHeader.Column).Column.Index;
+                        ColumnSetToRaw[columnIndex] = !ColumnSetToRaw[columnIndex];
+                        Items.Refresh();
+                        e.Handled = true;
+                    }
+
+
+                    return;
+                }
+
                 var cell = GetClickedCell(e);
                 if (cell == null)
                     return;

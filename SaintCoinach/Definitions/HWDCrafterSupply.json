@@ -1,0 +1,92 @@
+{
+  "sheet": "HWDCrafterSupply",
+  "definitions": [
+    {
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "Item{TradeIn}",
+        "converter": {
+          "type": "link",
+          "target": "Item"
+        }
+      }
+    },
+    {
+      "index": 16,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "Level"
+      }
+    },
+    {
+      "index": 32,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "LevelMax"
+      }
+    },
+    {
+      "index": 64,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "BaseCollectable{Rating}"
+      }
+    },
+    {
+      "index": 80,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "MidBaseCollectable{Rating}"
+      }
+    },
+    {
+      "index": 96,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "HighBaseCollectable{Rating}"
+      }
+    },
+    {
+      "index": 112,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "BaseCollectable{Reward}",
+        "converter": {
+          "type": "link",
+          "target": "HWDCrafterSupplyReward"
+        }
+      }
+    },
+    {
+      "index": 128,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "MidCollectable{Reward}",
+        "converter": {
+          "type": "link",
+          "target": "HWDCrafterSupplyReward"
+        }
+      }
+    },
+    {
+      "index": 144,
+      "type": "repeat",
+      "count": 16,
+      "definition": {
+        "name": "HighCollectable{Reward}",
+        "converter": {
+          "type": "link",
+          "target": "HWDCrafterSupplyReward"
+        }
+      }
+    }
+  ]
+}

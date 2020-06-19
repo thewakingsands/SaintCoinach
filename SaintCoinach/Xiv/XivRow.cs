@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -74,6 +75,8 @@ namespace SaintCoinach.Xiv {
         public int Key { get { return _SourceRow.Key; } }
 
         public object this[int columnIndex] { get { return _SourceRow[columnIndex]; } }
+
+        public IEnumerable<object> ColumnValues() => _SourceRow.ColumnValues();
 
         #endregion
 
@@ -305,6 +308,21 @@ namespace SaintCoinach.Xiv {
         /// <returns>The quad value of the field in <c>column</c> and <c>indices</c> of the current row.</returns>
         public Quad AsQuad(string column, params int[] indices) {
             return AsQuad(BuildColumnName(column, indices));
+        }
+
+        /// <summary>
+        ///     Gets the value of a field from a specific column and indices as a Int array.
+        /// </summary>
+        /// <param name="column">Name of the column from which to read.</param>
+        /// <param name="indices">Indices for the full column.</param>
+        /// <returns>The Int array of the field in <c>column</c> of the current row.</returns>
+        public int[] AsIntArray(string column) {
+            byte[] input = BitConverter.GetBytes(Convert.ToUInt32(this[column]));
+            int[] NewArray = new int[input.Length];
+            for (int i = 0; i < input.Length; i++) {
+                NewArray[i] = input[i] & 0xff;
+            }
+            return NewArray;
         }
         #endregion
     }

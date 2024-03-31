@@ -3,6 +3,7 @@ using System.Linq;
 using Tharga.Console;
 using Tharga.Console.Commands;
 using Tharga.Console.Commands.Base;
+using Tharga.Console.Interfaces;
 
 namespace SaintCoinach.Cmd {
     class ConsoleProgressReporter : IProgress<Ex.Relational.Update.UpdateProgress> {
@@ -51,7 +52,12 @@ namespace SaintCoinach.Cmd {
                     Console.WriteLine("Skipping update");
             }
             
-            var cns = new Tharga.Console.Consoles.ClientConsole();
+            IConsole cns;
+            try {
+                cns = new Tharga.Console.Consoles.ClientConsole();
+            } catch (System.PlatformNotSupportedException e) {
+                cns = new Tharga.Console.Consoles.NullConsole();
+            }
             var cmd = new RootCommand(cns);
 
             Setup(cmd, realm);

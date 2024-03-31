@@ -55,7 +55,7 @@ namespace SaintCoinach.Cmd {
             IConsole cns;
             try {
                 cns = new Tharga.Console.Consoles.ClientConsole();
-            } catch (System.PlatformNotSupportedException e) {
+            } catch (PlatformNotSupportedException e) {
                 cns = new Tharga.Console.Consoles.NullConsole();
             }
             var cmd = new RootCommand(cns);
